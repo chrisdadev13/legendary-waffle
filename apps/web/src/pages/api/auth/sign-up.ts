@@ -3,12 +3,11 @@ import { prisma } from "@calypso/db"
 import { z } from "zod"
 
 const signUpSchema = z.object({
-  firstName: z.string().min(1).max(20),
-  lastName: z.string().min(1).max(30),
+  firstName: z.string(),
+  lastName: z.string(),
   email: z.string().email(),
-
-  group: z.string().min(2).max(100),
-  groupSize: z.number(),
+  teamName: z.string(),
+  teamSize: z.number(),
 })
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -18,7 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const data = req.body
 
-  const { firstName, lastName, email, group, groupSize } =
+  const { firstName, lastName, email, teamName, teamSize } =
     signUpSchema.parse(data)
 
   const userEmail = email.toLowerCase()
@@ -30,12 +29,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const existingUser = await prisma.user.findFirst({
     where: {
-      OR: [{ email: userEmail }],
+      email: userEmail,
     },
   })
 
-  if (existingUser) {
-    const message: string = "Email address is already registere"
+  const existingTeam = await prisma.team.findFirst({
+    where: {
+      name: teamName,
+    },
+  })
+
+  if (existingUser || existingTeam) {
+    const message: string = existingUser
+      ? "Email address is already registered"
+      : "Team name is already taken"
+
     return res.status(409).json({ message })
   }
 
@@ -44,8 +52,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       firstName: firstName,
       lastName: lastName,
       email: userEmail,
+      team: {
+        create: {
+          name: teamName,
+          size: teamSize,
+        },
+      },
     },
   })
+
+  return res.status(201).json({ message: "User created", data: user })
 }
 
 export default handler

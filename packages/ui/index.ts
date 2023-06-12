@@ -1,6 +1,8 @@
 export * from "./components/button"
 export * from "./components/avatar"
 export * from "./components/accordion"
+export * from "./components/toast"
+export * from "./components/use-toast"
 
 export * from "./components/inputs/form"
 export * from "./components/inputs/input"

@@ -1,10 +1,9 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type DefaultSession, type NextAuthOptions } from "next-auth";
-import EmailProvider from "next-auth/providers/email";
+import { prisma } from "@calypso/db"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { type DefaultSession, type NextAuthOptions } from "next-auth"
+import EmailProvider from "next-auth/providers/email"
 
-import { prisma } from "@calypso/db";
-
-import { env } from "../env.mjs";
+import { env } from "../env.mjs"
 
 enum UserRole {
   ADMIN,
@@ -14,13 +13,13 @@ enum UserRole {
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string;
-      role: UserRole;
-    } & DefaultSession["user"];
+      id: string
+      role: UserRole
+    } & DefaultSession["user"]
   }
 
   interface User {
-    role: UserRole;
+    role: UserRole
   }
 }
 
@@ -49,4 +48,4 @@ export const authOptions: NextAuthOptions = {
       from: env.EMAIL_FROM,
     }),
   ],
-};
+}

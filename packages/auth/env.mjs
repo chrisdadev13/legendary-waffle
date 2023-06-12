@@ -1,9 +1,9 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from "@t3-oss/env-nextjs"
+import { z } from "zod"
 
 export const env = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    DB_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
@@ -25,7 +25,7 @@ export const env = createEnv({
   },
   client: {},
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
+    DB_URL: process.env.DB_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
@@ -36,4 +36,4 @@ export const env = createEnv({
     EMAIL_USER: process.env.EMAIL_USER,
   },
   skipValidation: !!process.env.CI,
-});
+})

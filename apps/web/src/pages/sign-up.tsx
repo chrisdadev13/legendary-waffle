@@ -1,4 +1,5 @@
 import { useRouter } from "next/router"
+import { useMetaMask } from "@calypso/lib"
 import {
   Button,
   Form,
@@ -26,6 +27,15 @@ const signUpSchema = z.object({
 })
 
 function SignUp() {
+  const {
+    hasProvider,
+    connect,
+    error,
+    errorMessage,
+    isConnecting,
+    isMetaMask,
+  } = useMetaMask()
+
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -33,14 +43,14 @@ function SignUp() {
       lastName: "",
       email: "",
       teamName: "",
-      teamSize: 1,
+      teamSize: 5,
     },
   })
   const router = useRouter()
 
   const { mutate } = useMutation(
     async (values: z.infer<typeof signUpSchema>) => {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/auth/sign-up", {
         body: JSON.stringify({
           ...values,
         }),
@@ -51,14 +61,19 @@ function SignUp() {
       })
 
       const api = await res.json()
-
+      console.log(api)
       if (!res.ok) throw api.message
     },
   )
 
   const onSubmit = (values: z.infer<typeof signUpSchema>) =>
     mutate(values, {
-      onSuccess: () => router.push("/auth/login"),
+      onSuccess: () => {
+        router.push({
+          pathname: "/auth/login",
+          query: { msg: "Account created successfully" },
+        })
+      },
       onError: (err: any) =>
         toast({
           variant: "destructive",
@@ -151,7 +166,13 @@ function SignUp() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button onClick={connect}>Link your Wallet</Button>
+        <Button
+          disabled={hasProvider === true && isMetaMask === true ? false : true}
+          type="submit"
+        >
+          Submit
+        </Button>
       </form>
     </Form>
   )

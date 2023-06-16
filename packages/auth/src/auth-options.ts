@@ -5,7 +5,8 @@ import EmailProvider from "next-auth/providers/email"
 
 import { env } from "../env.mjs"
 
-enum UserRole {
+export enum Role {
+  OWNER,
   ADMIN,
   USER,
 }
@@ -14,12 +15,12 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string
-      role: UserRole
+      role: Role
     } & DefaultSession["user"]
   }
 
   interface User {
-    role: UserRole
+    role: Role
   }
 }
 
@@ -48,4 +49,8 @@ export const authOptions: NextAuthOptions = {
       from: env.EMAIL_FROM,
     }),
   ],
+  pages: {
+    signIn: "/auth/login",
+    newUser: "/auth/new-user",
+  },
 }

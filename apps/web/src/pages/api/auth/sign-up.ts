@@ -52,16 +52,28 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       firstName: firstName,
       lastName: lastName,
       email: userEmail,
+    },
+  })
+
+  const team = await prisma.team.create({
+    data: {
+      name: teamName,
+      size: teamSize,
+    },
+  })
+
+  await prisma.membership.create({
+    data: {
+      user: {
+        connect: user,
+      },
       team: {
-        create: {
-          name: teamName,
-          size: teamSize,
-        },
+        connect: team,
       },
     },
   })
 
-  return res.status(201).json({ message: "User created", data: user })
+  res.status(201).json({ message: "User created" })
 }
 
 export default handler

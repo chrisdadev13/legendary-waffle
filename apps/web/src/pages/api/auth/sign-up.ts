@@ -1,14 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { prisma } from "@calypso/db"
-import { z } from "zod"
-
-const signUpSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  teamName: z.string(),
-  teamSize: z.number(),
-})
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
@@ -17,8 +8,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const data = req.body
 
-  const { firstName, lastName, email, teamName, teamSize } =
-    signUpSchema.parse(data)
+  const { firstName, lastName, email, teamName, teamLimit } = data
 
   const userEmail = email.toLowerCase()
 
@@ -44,7 +34,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       ? "Email address is already registered"
       : "Team name is already taken"
 
-    return res.status(409).json({ message })
+    res.status(409).json({ message })
+    return
   }
 
   const user = await prisma.user.create({
@@ -58,22 +49,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const team = await prisma.team.create({
     data: {
       name: teamName,
-      size: teamSize,
+      limit: teamLimit,
     },
   })
 
   await prisma.membership.create({
     data: {
-      user: {
-        connect: user,
-      },
-      team: {
-        connect: team,
-      },
+      userId: user.id,
+      teamId: team.id,
     },
   })
 
   res.status(201).json({ message: "User created" })
+  return
 }
 
 export default handler

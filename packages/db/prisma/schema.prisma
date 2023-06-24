@@ -15,12 +15,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String? 
+    access_token      String? 
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String? 
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -32,9 +32,14 @@ model Session {
     id           String   @id @default(cuid())
     sessionToken String   @unique
     userId       String
+    membershipId String
     expires      DateTime
+
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    @@index([userId])
+    membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+    @@index([ userId])
+    @@index([membershipId])
 }
 
 model VerificationToken {
@@ -55,7 +60,7 @@ model User {
     id            String    @id @default(cuid())
     firstName     String?
     lastName      String?
-    email         String   
+    email         String?   @unique
     emailVerified DateTime?
     accounts      Account[]
     sessions      Session[]
@@ -67,7 +72,7 @@ model Team {
     id          String  @id @default(cuid())
     name        String
     member      Membership[]
-    size        Int
+    limit       Int
 }
 
 model Membership {
@@ -78,4 +83,5 @@ model Membership {
 
     team        Team   @relation(fields: [teamId], references: [id])
     teamId      String @unique
+    sessions    Session[]
 }

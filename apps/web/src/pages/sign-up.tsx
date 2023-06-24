@@ -1,5 +1,5 @@
+import React from "react"
 import { useRouter } from "next/router"
-import { useMetaMask } from "@calypso/lib"
 import {
   Button,
   Form,
@@ -23,19 +23,10 @@ const signUpSchema = z.object({
   email: z.string().email(),
 
   teamName: z.string().min(2).max(100),
-  teamSize: z.number(),
+  teamLimit: z.number(),
 })
 
 function SignUp() {
-  const {
-    hasProvider,
-    connect,
-    error,
-    errorMessage,
-    isConnecting,
-    isMetaMask,
-  } = useMetaMask()
-
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -43,7 +34,7 @@ function SignUp() {
       lastName: "",
       email: "",
       teamName: "",
-      teamSize: 5,
+      teamLimit: 5,
     },
   })
   const router = useRouter()
@@ -152,7 +143,7 @@ function SignUp() {
 
         <FormField
           control={form.control}
-          name="teamSize"
+          name="teamLimit"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Team</FormLabel>
@@ -166,13 +157,7 @@ function SignUp() {
             </FormItem>
           )}
         />
-        <Button onClick={connect}>Link your Wallet</Button>
-        <Button
-          disabled={hasProvider === true && isMetaMask === true ? false : true}
-          type="submit"
-        >
-          Submit
-        </Button>
+        <Button type="submit">Submit</Button>
       </form>
     </Form>
   )
